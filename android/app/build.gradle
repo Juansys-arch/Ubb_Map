@@ -1,0 +1,75 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def mapsApiKey = localProperties.getProperty('MAPS_API_KEY')
+if (mapsApiKey == null) {
+    mapsApiKey = ""
+}
+
+apply plugin: 'com.google.gms.google-services'
+
+android {
+    namespace = "cl.nsqws.ubbmap"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "cl.nsqws.ubbmap"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+
+        manifestPlaceholders += [
+            MAPS_API_KEY: mapsApiKey
+        ]
+    }
+
+signingConfigs {
+    release {
+        storeFile file("C:/Users/ivanp/Desktop/ubbmap_key.jks")
+        storePassword "#<ohN\\\$XQWv608,5L6V)R" 
+        keyAlias "nsqws_ubb"
+        keyPassword "#<ohN\\\$XQWv608,5L6V)R"    
+    }
+}
+
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true 
+            shrinkResources true  
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:34.11.0')
+    implementation 'com.google.firebase:firebase-analytics'
+}

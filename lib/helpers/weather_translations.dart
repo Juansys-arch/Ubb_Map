@@ -1,0 +1,17 @@
+final Map<String, String> weatherTranslations = {
+  "Thunderstorm": "Tormenta eléctrica",
+  "Drizzle": "Llovizna",
+  "Rain": "Lluvia",
+  "Snow": "Nieve",
+  "Mist": "Neblina",
+  "Smoke": "Humo",
+  "Haze": "Calina",
+  "Sand": "Arena",
+  "Fog": "Niebla",
+  "Squall": "Chubasco",
+  "Tornado": "Tornado",
+  "Clear": "Despejado",
+  "Clouds": "Nublado",
+  "Ash": "Ceniza",
+  "Dust": "Polvo",
+};
