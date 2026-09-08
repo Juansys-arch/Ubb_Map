@@ -9,6 +9,7 @@ export 'package:ubb/screens/main_screen.dart';
 export 'package:ubb/screens/register_screen.dart';
 export 'package:ubb/screens/reset_password_screen.dart';
 export 'package:ubb/screens/settings_screen.dart';
+export 'package:ubb/screens/schedule_screen.dart';
 
 export 'package:ubb/screens/concepcion/map_screen.dart';
 export 'package:ubb/screens/concepcion/loading_screen.dart';

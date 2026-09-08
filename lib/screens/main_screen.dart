@@ -15,6 +15,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final screens = [
     const HomeScreen(),
+    const ScheduleScreen(),
     const MapsOptionsScreen(),
     const SettingsScreen(),
   ];
@@ -41,6 +42,10 @@ class _MainScreenState extends State<MainScreen> {
           BarItem(
             icon: Icons.home,
             title: 'Inicio',
+          ),
+          BarItem(
+            icon: Icons.calendar_month,
+            title: 'Horario',
           ),
           BarItem(
             icon: Icons.map,
