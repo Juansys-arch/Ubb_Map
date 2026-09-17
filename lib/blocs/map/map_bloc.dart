@@ -52,6 +52,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
     on<DisplayPolylineEvent>((event, emit) => emit(
         state.copyWith(polylines: event.polylines, markers: event.markers)));
+
     locationBloc.stream.listen((locationState) {
       if (locationState.lastKnowLocation != null) {
         add(UpdateUserPolylineEvent(locationState.myLocationHistory));
@@ -64,22 +65,34 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   }
 
   Future<void> loadMedicalMarkersFromJson() async {
-    final response = await http.get(Uri.parse(
-        'https://ubbmap-app-default-rtdb.firebaseio.com/registros_kitmarker_ccp.json'));
+    try {
+      final response = await http.get(Uri.parse(
+          'https://ubbmap-94203-default-rtdb.firebaseio.com/registros_kitmarker_ccp.json'));
 
-    if (response.statusCode == 200) {
-      // Decodifica la respuesta JSON.
-      final jsonList = json.decode(response.body) as List;
+      if (response.statusCode == 200 && response.body != 'null') {
+        final dynamic decoded = json.decode(response.body);
 
-      final medicalMarkers =
-          jsonList.map((json) => MedicalMarker.fromJson(json)).toList();
+        List<MedicalMarker> medicalMarkers = [];
 
-      for (final marker in medicalMarkers) {
-        add(AddMedicalMarkerEvent(marker));
+        if (decoded is List) {
+          medicalMarkers = decoded
+              .where((item) => item != null)
+              .map((json) => MedicalMarker.fromJson(json))
+              .toList();
+        } else if (decoded is Map) {
+          medicalMarkers = decoded.values
+              .where((item) => item != null)
+              .map((json) =>
+                  MedicalMarker.fromJson(Map<String, dynamic>.from(json)))
+              .toList();
+        }
+
+        for (final marker in medicalMarkers) {
+          add(AddMedicalMarkerEvent(marker));
+        }
       }
-    } else {
-      // Maneja el error de la solicitud HTTP aquí si es necesario.
-      throw Exception('Error al cargar datos desde la URL');
+    } catch (_) {
+      // Evita romper el bloc si el nodo aún no existe en Firebase
     }
   }
 
@@ -135,10 +148,6 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       endCap: Cap.roundCap,
     );
 
-    Set<Polyline> polylines = {};
-    polylines.add(backgroundRoute);
-    polylines.add(foregroundRoute);
-
     final startMarkerPin = await getAssetImageMarker('assets/pin.png');
     final endMarkerPin = await getAssetImageMarker('assets/pin.png');
 
@@ -161,7 +170,6 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     );
 
     final currentPolylines = Map<String, Polyline>.from(state.polylines);
-
     currentPolylines['route_background'] = backgroundRoute;
     currentPolylines['route_foreground'] = foregroundRoute;
 

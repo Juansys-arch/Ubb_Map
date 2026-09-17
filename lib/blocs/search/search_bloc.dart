@@ -5,10 +5,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:ubb/models/models.dart';
 import 'package:ubb/services/services.dart';
-
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
-
 import 'package:firebase_database/firebase_database.dart';
 
 part 'search_event.dart';
@@ -32,7 +28,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   Future<RouteDestination> getCoorsStartToEnd(LatLng start, LatLng end) async {
     final trafficResponse = await trafficService.getCoorsStartToEnd(start, end);
-
     final endPlace = await trafficService.getInformationByCoors(end);
 
     final geometry = trafficResponse.routes[0].geometry;
@@ -58,11 +53,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   Future<List<Feature>> loadPlacesFromJsonCCP() async {
     final database = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
-      databaseURL: "https://ubbmap-app-default-rtdb.firebaseio.com",
+      databaseURL: "https://ubbmap-94203-default-rtdb.firebaseio.com",
     );
 
     final reference = database.ref().child('registros_ccp');
-
     List<Feature> places = [];
 
     try {
@@ -119,9 +113,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   Future getPlacesByQuery(LatLng proximity, String query) async {
     final newPlaces = <Feature>[];
-
     final normalizedQuery = normalizeText(query);
-
     final places = await loadPlacesFromJsonCCP();
 
     final match = RegExp(r'\d+([a-zA-Z]+)').firstMatch(query);
