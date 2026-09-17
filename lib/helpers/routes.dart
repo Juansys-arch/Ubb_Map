@@ -18,12 +18,7 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/map_screen',
-      builder: (context, state) => LoadingScreen(
-        destinationRoom: state.uri.queryParameters['room'],
-        destinationBuilding: state.uri.queryParameters['building'],
-        destinationLat: state.uri.queryParameters['lat'],
-        destinationLng: state.uri.queryParameters['lng'],
-      ),
+      builder: (context, state) => const LoadingScreen(),
     ),
     GoRoute(
       path: '/map_screen_fm',

@@ -26,28 +26,16 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> {
   }
 
   Future getCurrentPosition() async {
-    try {
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      add(OnNewUserLocationEvent(LatLng(position.latitude, position.longitude)));
-      return LatLng(position.latitude, position.longitude);
-    } catch (_) {
-      return null;
-    }
+    final position = await Geolocator.getCurrentPosition();
+    add(OnNewUserLocationEvent(LatLng(position.latitude, position.longitude)));
   }
 
   void startFollowingUser() {
     add(OnStartFollowingUser());
-    getCurrentPosition();
-    positionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5,
-      ),
-    ).listen((event) {
+    positionStream = Geolocator.getPositionStream().listen((event) {
+      final position = event;
       add(OnNewUserLocationEvent(
-          LatLng(event.latitude, event.longitude)));
+          LatLng(position.latitude, position.longitude)));
     });
   }
 
