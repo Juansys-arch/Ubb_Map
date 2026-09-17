@@ -179,34 +179,7 @@ class _ClassCard extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Ver sala en el mapa',
-            onPressed: () {
-              final room = Uri.encodeComponent(classItem.room);
-              final building = Uri.encodeComponent(classItem.building);
-
-              String lat = '';
-              String lng = '';
-
-              switch (classItem.building) {
-                case 'Edificio A':
-                  lat = '-36.8218';
-                  lng = '-73.0116';
-                  break;
-                case 'Edificio S':
-                  lat = '-36.8225';
-                  lng = '-73.0132';
-                  break;
-                case 'Laboratorios':
-                  lat = '-36.8231';
-                  lng = '-73.0115';
-                  break;
-                default:
-                  lat = '-36.8220178016745';
-                  lng = '-73.0129262889358';
-              }
-
-              context.push(
-                  '${classItem.mapRoute}?room=$room&building=$building&lat=$lat&lng=$lng');
-            },
+            onPressed: () => context.push(classItem.mapRoute),
             icon: const Icon(Icons.map_outlined, color: AppColors.primary),
           ),
         ],
