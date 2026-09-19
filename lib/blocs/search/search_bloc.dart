@@ -111,31 +111,51 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         .toLowerCase();
   }
 
-  Future getPlacesByQuery(LatLng proximity, String query) async {
-    final newPlaces = <Feature>[];
+  Future<List<Feature>> getPlacesByQuery(LatLng proximity, String query) async {
     final normalizedQuery = normalizeText(query);
     final places = await loadPlacesFromJsonCCP();
 
-    final match = RegExp(r'\d+([a-zA-Z]+)').firstMatch(query);
-
+    // 1. Intento por regex (ej: extraer "AD" de "S202 AD")
+    final match = RegExp(r'\d+\s?([a-zA-Z]+)').firstMatch(query);
     if (match != null) {
       final queryLetters = normalizeText(match.group(1) ?? '');
-
       final filteredPlaces = places
           .where((place) => place.placeName.any((name) =>
               normalizeText(name.replaceAll(RegExp('[^a-zA-Z]+'), '')) ==
               queryLetters))
           .toList();
-
-      newPlaces.addAll(filteredPlaces);
-      add(OnNewPlacesFoundEvent(filteredPlaces));
-    } else {
-      final filteredPlaces = places
-          .where((place) => normalizeText(place.text).contains(normalizedQuery))
-          .toList();
-
-      newPlaces.addAll(filteredPlaces);
-      add(OnNewPlacesFoundEvent(filteredPlaces));
+      
+      if (filteredPlaces.isNotEmpty) {
+        add(OnNewPlacesFoundEvent(filteredPlaces));
+        return filteredPlaces;
+      }
     }
+
+    // 2. Intento por texto en Firebase
+    final filteredPlaces = places
+        .where((place) => 
+            normalizeText(place.text).contains(normalizedQuery) ||
+            place.placeName.any((name) => normalizeText(name).contains(normalizedQuery))
+        )
+        .toList();
+
+    if (filteredPlaces.isNotEmpty) {
+      add(OnNewPlacesFoundEvent(filteredPlaces));
+      return filteredPlaces;
+    }
+
+    // 3. Fallback a Nominatim (para cosas que no están en Firebase como "Lab3", "Laboratorios")
+    try {
+      final nominatimPlaces = await trafficService.getResultsByQuery(proximity, query);
+      if (nominatimPlaces.isNotEmpty) {
+        add(OnNewPlacesFoundEvent(nominatimPlaces));
+        return nominatimPlaces;
+      }
+    } catch (e) {
+      // Ignorar errores de red de Nominatim y retornar vacío
+    }
+
+    add(const OnNewPlacesFoundEvent([]));
+    return [];
   }
 }

@@ -18,7 +18,14 @@ final GoRouter router = GoRouter(
     ),
     GoRoute(
       path: '/map_screen',
-      builder: (context, state) => const LoadingScreen(),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, String>?;
+        return LoadingScreen(
+          roomCode: extra?['room'],
+          roomSearchCode: extra?['code'],
+          building: extra?['building'],
+        );
+      },
     ),
     GoRoute(
       path: '/map_screen_fm',

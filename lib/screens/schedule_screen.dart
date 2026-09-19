@@ -146,7 +146,7 @@ class _ClassCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: classItem.color,
         borderRadius: BorderRadius.circular(12),
-        border: Border(left: BorderSide(color: classItem.color.withOpacity(0.8), width: 5)),
+        border: Border(left: BorderSide(color: classItem.color.withValues(alpha: 0.8), width: 5)),
       ),
       padding: const EdgeInsets.fromLTRB(14, 13, 10, 10),
       child: Row(
@@ -179,7 +179,14 @@ class _ClassCard extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Ver sala en el mapa',
-            onPressed: () => context.push(classItem.mapRoute),
+            onPressed: () => context.push(
+              classItem.mapRoute,
+              extra: {
+                'room': classItem.room,       // Para mostrar en el banner (ej: "S101")
+                'code': classItem.code,       // Para buscar en Firebase (ej: "S101 FG")
+                'building': classItem.building,
+              },
+            ),
             icon: const Icon(Icons.map_outlined, color: AppColors.primary),
           ),
         ],

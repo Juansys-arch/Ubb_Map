@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+/// Respuesta de la API de rutas (compatible con OSRM y Mapbox).
 class TrafficResponse {
   final List<Route> routes;
   final List<Waypoint> waypoints;
@@ -19,18 +20,23 @@ class TrafficResponse {
   String toJson() => json.encode(toMap());
 
   factory TrafficResponse.fromMap(Map<String, dynamic> json) => TrafficResponse(
-        routes: List<Route>.from(json["routes"].map((x) => Route.fromMap(x))),
-        waypoints: List<Waypoint>.from(
-            json["waypoints"].map((x) => Waypoint.fromMap(x))),
-        code: json["code"],
-        uuid: json["uuid"],
+        routes: List<Route>.from(
+            (json['routes'] as List).map((x) => Route.fromMap(x))),
+        waypoints: json['waypoints'] != null
+            ? List<Waypoint>.from(
+                (json['waypoints'] as List).map((x) => Waypoint.fromMap(x)))
+            : [],
+        // OSRM devuelve "code": "Ok", Mapbox devuelve un string diferente
+        code: json['code']?.toString() ?? 'Ok',
+        // uuid solo existe en Mapbox; OSRM no lo tiene
+        uuid: json['uuid']?.toString() ?? '',
       );
 
   Map<String, dynamic> toMap() => {
-        "routes": List<dynamic>.from(routes.map((x) => x.toMap())),
-        "waypoints": List<dynamic>.from(waypoints.map((x) => x.toMap())),
-        "code": code,
-        "uuid": uuid,
+        'routes': List<dynamic>.from(routes.map((x) => x.toMap())),
+        'waypoints': List<dynamic>.from(waypoints.map((x) => x.toMap())),
+        'code': code,
+        'uuid': uuid,
       };
 }
 
@@ -56,21 +62,25 @@ class Route {
   String toJson() => json.encode(toMap());
 
   factory Route.fromMap(Map<String, dynamic> json) => Route(
-        weightName: json["weight_name"],
-        weight: json["weight"].toDouble(),
-        duration: json["duration"].toDouble(),
-        distance: json["distance"].toDouble(),
-        legs: List<Leg>.from(json["legs"].map((x) => Leg.fromMap(x))),
-        geometry: json["geometry"],
+        // OSRM no tiene weight_name, usamos fallback
+        weightName: json['weight_name']?.toString() ?? 'duration',
+        // OSRM no tiene weight separado, usamos duration como fallback
+        weight: (json['weight'] ?? json['duration'] ?? 0).toDouble(),
+        duration: (json['duration'] ?? 0).toDouble(),
+        distance: (json['distance'] ?? 0).toDouble(),
+        legs: json['legs'] != null
+            ? List<Leg>.from((json['legs'] as List).map((x) => Leg.fromMap(x)))
+            : [],
+        geometry: json['geometry']?.toString() ?? '',
       );
 
   Map<String, dynamic> toMap() => {
-        "weight_name": weightName,
-        "weight": weight,
-        "duration": duration,
-        "distance": distance,
-        "legs": List<dynamic>.from(legs.map((x) => x.toMap())),
-        "geometry": geometry,
+        'weight_name': weightName,
+        'weight': weight,
+        'duration': duration,
+        'distance': distance,
+        'legs': List<dynamic>.from(legs.map((x) => x.toMap())),
+        'geometry': geometry,
       };
 }
 
@@ -98,23 +108,31 @@ class Leg {
   String toJson() => json.encode(toMap());
 
   factory Leg.fromMap(Map<String, dynamic> json) => Leg(
-        viaWaypoints: List<dynamic>.from(json["via_waypoints"].map((x) => x)),
-        admins: List<Admin>.from(json["admins"].map((x) => Admin.fromMap(x))),
-        weight: json["weight"].toDouble(),
-        duration: json["duration"].toDouble(),
-        steps: List<dynamic>.from(json["steps"].map((x) => x)),
-        distance: json["distance"].toDouble(),
-        summary: json["summary"],
+        viaWaypoints: json['via_waypoints'] != null
+            ? List<dynamic>.from((json['via_waypoints'] as List))
+            : [],
+        // OSRM no tiene admins
+        admins: json['admins'] != null
+            ? List<Admin>.from(
+                (json['admins'] as List).map((x) => Admin.fromMap(x)))
+            : [],
+        weight: (json['weight'] ?? json['duration'] ?? 0).toDouble(),
+        duration: (json['duration'] ?? 0).toDouble(),
+        steps: json['steps'] != null
+            ? List<dynamic>.from((json['steps'] as List))
+            : [],
+        distance: (json['distance'] ?? 0).toDouble(),
+        summary: json['summary']?.toString() ?? '',
       );
 
   Map<String, dynamic> toMap() => {
-        "via_waypoints": List<dynamic>.from(viaWaypoints.map((x) => x)),
-        "admins": List<dynamic>.from(admins.map((x) => x.toMap())),
-        "weight": weight,
-        "duration": duration,
-        "steps": List<dynamic>.from(steps.map((x) => x)),
-        "distance": distance,
-        "summary": summary,
+        'via_waypoints': List<dynamic>.from(viaWaypoints),
+        'admins': List<dynamic>.from(admins.map((x) => x.toMap())),
+        'weight': weight,
+        'duration': duration,
+        'steps': List<dynamic>.from(steps),
+        'distance': distance,
+        'summary': summary,
       };
 }
 
@@ -132,13 +150,13 @@ class Admin {
   String toJson() => json.encode(toMap());
 
   factory Admin.fromMap(Map<String, dynamic> json) => Admin(
-        iso31661Alpha3: json["iso_3166_1_alpha3"],
-        iso31661: json["iso_3166_1"],
+        iso31661Alpha3: json['iso_3166_1_alpha3']?.toString() ?? '',
+        iso31661: json['iso_3166_1']?.toString() ?? '',
       );
 
   Map<String, dynamic> toMap() => {
-        "iso_3166_1_alpha3": iso31661Alpha3,
-        "iso_3166_1": iso31661,
+        'iso_3166_1_alpha3': iso31661Alpha3,
+        'iso_3166_1': iso31661,
       };
 }
 
@@ -158,14 +176,17 @@ class Waypoint {
   String toJson() => json.encode(toMap());
 
   factory Waypoint.fromMap(Map<String, dynamic> json) => Waypoint(
-        distance: json["distance"].toDouble(),
-        name: json["name"],
-        location: List<double>.from(json["location"].map((x) => x.toDouble())),
+        distance: (json['distance'] ?? 0).toDouble(),
+        name: json['name']?.toString() ?? '',
+        location: json['location'] != null
+            ? List<double>.from(
+                (json['location'] as List).map((x) => x.toDouble()))
+            : [],
       );
 
   Map<String, dynamic> toMap() => {
-        "distance": distance,
-        "name": name,
-        "location": List<dynamic>.from(location.map((x) => x)),
+        'distance': distance,
+        'name': name,
+        'location': List<dynamic>.from(location),
       };
 }
