@@ -4,7 +4,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:ubb/helpers/routes.dart';
 import 'package:ubb/providers/login_form_provider.dart';
 import 'package:ubb/themes/colors_theme.dart';
 import 'package:ubb/ui/input_decorations.dart';
@@ -108,7 +107,6 @@ class _ResetPasswordForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resetPass = Provider.of<LoginFormProvider>(context);
-    final size = MediaQuery.of(context).size;
 
     return Form(
       key: resetPass.formKey,

@@ -1,6 +1,5 @@
 
 export 'package:ubb/screens/maps_options_screen.dart';
-export 'package:ubb/screens/animated_screen.dart';
 export 'package:ubb/screens/check_auth_screen.dart';
 export 'package:ubb/screens/gps_acces_screen.dart';
 export 'package:ubb/screens/home_screen.dart';

@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'weather_data.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class WeatherData {
   final String location;
   final double temperature;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:ubb/screens/screens.dart';
 import 'package:ubb/services/auth_service.dart';
 
 class CheckAuthScreen extends StatelessWidget {

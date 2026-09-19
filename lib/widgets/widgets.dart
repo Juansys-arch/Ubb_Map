@@ -1,6 +1,4 @@
 export 'package:ubb/widgets/auth_background.dart';
-export 'package:ubb/widgets/background.dart';
-export 'package:ubb/widgets/btn_toggle_user_route.dart';
 export 'package:ubb/widgets/card_container.dart';
 export 'package:ubb/widgets/gps_acces_content.dart';
 export 'package:ubb/widgets/home_content.dart';

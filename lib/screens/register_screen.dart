@@ -1,7 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -323,7 +322,6 @@ class _RegisterFormState extends State<_RegisterForm> {
                                         'Se ha enviado un correo para activar tu cuenta. Por favor, verifica tu bandeja de entrada',
                                     onPressed: () => context.replace('/login'),
                                   ));
-                          ;
                         } else {
                           showDialog(
                               context: context,
