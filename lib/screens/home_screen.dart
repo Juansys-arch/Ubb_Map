@@ -35,88 +35,91 @@ class _HomeScreenState extends State<HomeScreen> {
               return Column(
                 children: [
                   PageTitle(weatherDataList: state.weatherDataList!),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 30, top: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hoy',
-                          style: GoogleFonts.roboto(
-                            color: AppColors.primary,
-                            fontSize: 26,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        ChoiceChip(
-                          showCheckmark: false,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(
-                                width: 0,
-                                color: AppColors.white.withOpacity(1)),
-                          ),
-                          selectedColor: AppColors.primary,
-                          backgroundColor: const Color(0xFFD9D9D9),
-                          label: Text(
-                            'Concepción',
-                            style: TextStyle(
-                              color: selectedIndex == 0
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(top: 12, bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(
+                                  'Hoy',
+                                  style: GoogleFonts.roboto(
+                                    color: AppColors.primary,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                                ChoiceChip(
+                                  showCheckmark: false,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide.none,
+                                  ),
+                                  selectedColor: AppColors.primary,
+                                  backgroundColor: const Color(0xFFD9D9D9),
+                                  label: Text(
+                                    'Concepción',
+                                    style: TextStyle(
+                                      color: selectedIndex == 0
+                                          ? Colors.white
+                                          : AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  selected: selectedIndex == 0,
+                                  clipBehavior: Clip.antiAlias,
+                                  elevation: 0,
+                                  pressElevation: 0,
+                                  onSelected: (_) {
+                                    setState(() {
+                                      selectedIndex = 0;
+                                    });
+                                  },
+                                ),
+                                ChoiceChip(
+                                  showCheckmark: false,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    side: BorderSide.none,
+                                  ),
+                                  selectedColor: AppColors.primary,
+                                  backgroundColor: const Color(0xFFD9D9D9),
+                                  label: Text(
+                                    'Chillán',
+                                    style: TextStyle(
+                                      color: selectedIndex == 1
+                                          ? Colors.white
+                                          : AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  selected: selectedIndex == 1,
+                                  clipBehavior: Clip.antiAlias,
+                                  elevation: 0,
+                                  pressElevation: 0,
+                                  onSelected: (_) {
+                                    setState(() {
+                                      selectedIndex = 1;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                          selected: selectedIndex == 0,
-                          clipBehavior: Clip.antiAlias,
-                          elevation: 0,
-                          pressElevation: 0,
-                          onSelected: (bool selected) {
-                            setState(() {
-                              selectedIndex = 0;
-                            });
-                          },
-                        ),
-                        const SizedBox(width: 10),
-                        ChoiceChip(
-                          showCheckmark: false,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(
-                                width: 0,
-                                color: AppColors.white.withOpacity(1)),
-                          ),
-                          selectedColor: AppColors.primary,
-                          backgroundColor: const Color(0xFFD9D9D9),
-                          label: Text(
-                            'Chillán',
-                            style: TextStyle(
-                              color: selectedIndex == 1
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 8,
+                              left: 16,
+                              right: 16,
                             ),
+                            child: ForecastWeatherWidget(index: selectedIndex),
                           ),
-                          selected: selectedIndex == 1,
-                          clipBehavior: Clip.antiAlias,
-                          elevation: 0,
-                          pressElevation: 0,
-                          onSelected: (bool selected) {
-                            setState(() {
-                              selectedIndex = 1;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 10,
-                      left: 20,
-                      right: 20,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: ForecastWeatherWidget(index: selectedIndex),
+                        ],
+                      ),
                     ),
                   ),
                 ],
