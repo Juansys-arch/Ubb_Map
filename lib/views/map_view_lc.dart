@@ -25,7 +25,7 @@ class MapViewStateLC extends State<MapViewLC> {
 
     const CameraPosition initialCameraPositionLC = CameraPosition(
       target: LatLng(-36.61138113884416, -72.11756705684562),
-      zoom: 18,
+      zoom: 17.5,
     );
 
     CameraTargetBounds cameraTargetBoundsLC = CameraTargetBounds(
@@ -56,7 +56,7 @@ class MapViewStateLC extends State<MapViewLC> {
           zoomControlsEnabled: false,
           polylines: widget.polylinesLC,
           zoomGesturesEnabled: true,
-          minMaxZoomPreference: const MinMaxZoomPreference(17.0, 20.0),
+          minMaxZoomPreference: const MinMaxZoomPreference(16.0, 20.0),
           markers: mapBlocLC.state.showMedicalMarkersLC
               ? Set<Marker>.from(allMarkersLC)
               : Set<Marker>.from(widget.markersLC),

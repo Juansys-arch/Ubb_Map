@@ -175,9 +175,17 @@ class MapBlocFM extends Bloc<MapEventFM, MapStateFM> {
     _mapControllerFM?.showMarkerInfoWindow(const MarkerId('end'));
   }
 
-  void moveCamera(LatLng target) {
-    final cameraPositionFM = CameraPosition(target: target, zoom: 12.0);
+  void moveCamera(LatLng target, {double zoom = 17.5}) {
+    final cameraPositionFM = CameraPosition(target: target, zoom: zoom);
     final cameraUpdateFM = CameraUpdate.newCameraPosition(cameraPositionFM);
     _mapControllerFM?.animateCamera(cameraUpdateFM);
+  }
+
+  void zoomIn() {
+    _mapControllerFM?.animateCamera(CameraUpdate.zoomIn());
+  }
+
+  void zoomOut() {
+    _mapControllerFM?.animateCamera(CameraUpdate.zoomOut());
   }
 }

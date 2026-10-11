@@ -25,7 +25,7 @@ class MapViewStateFM extends State<MapViewFM> {
 
     const CameraPosition initialCameraPositionFM = CameraPosition(
       target: LatLng(-36.599603676831755, -72.07553123700048),
-      zoom: 18,
+      zoom: 17.5,
     );
 
     CameraTargetBounds cameraTargetBoundsFM = CameraTargetBounds(
@@ -56,7 +56,7 @@ class MapViewStateFM extends State<MapViewFM> {
           zoomControlsEnabled: false,
           polylines: widget.polylinesFM,
           zoomGesturesEnabled: true,
-          minMaxZoomPreference: const MinMaxZoomPreference(17.0, 20.0),
+          minMaxZoomPreference: const MinMaxZoomPreference(16.0, 20.0),
           markers: mapBlocFM.state.showMedicalMarkersFM
               ? Set<Marker>.from(allMarkersFM)
               : Set<Marker>.from(widget.markersFM),

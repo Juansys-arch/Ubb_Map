@@ -175,9 +175,17 @@ class MapBlocLC extends Bloc<MapEventLC, MapStateLC> {
     _mapControllerLC?.showMarkerInfoWindow(const MarkerId('end'));
   }
 
-  void moveCamera(LatLng target) {
-    final cameraPositionLC = CameraPosition(target: target, zoom: 12.0);
+  void moveCamera(LatLng target, {double zoom = 17.5}) {
+    final cameraPositionLC = CameraPosition(target: target, zoom: zoom);
     final cameraUpdateLC = CameraUpdate.newCameraPosition(cameraPositionLC);
     _mapControllerLC?.animateCamera(cameraUpdateLC);
+  }
+
+  void zoomIn() {
+    _mapControllerLC?.animateCamera(CameraUpdate.zoomIn());
+  }
+
+  void zoomOut() {
+    _mapControllerLC?.animateCamera(CameraUpdate.zoomOut());
   }
 }
