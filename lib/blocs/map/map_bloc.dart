@@ -96,6 +96,65 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     }
   }
 
+  Future<void> loadCampusMarkers(BuildContext context) async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://ubbmap-94203-default-rtdb.firebaseio.com/registros_ccp.json'));
+
+      if (response.statusCode != 200 || response.body == 'null') return;
+
+      final dynamic decoded = json.decode(response.body);
+      final markerIcon = await getBuildingMarkerIcon();
+      final campusMarkers = <String, Marker>{};
+
+      void addMarker(Map<String, dynamic> data) {
+        final place = Feature.fromMap(data);
+        final center = place.center;
+
+        if (center.length < 2) return;
+        final longitude = center[0];
+        final latitude = center[1];
+
+        campusMarkers[place.id] = Marker(
+          markerId: MarkerId(place.id),
+          position: LatLng(latitude, longitude),
+          icon: markerIcon,
+          onTap: () {
+            showBuildingDetailsModal(
+              context,
+              title: place.text,
+              facultad: place.facultad,
+              carreras: place.carreras,
+              imagen: place.imagen,
+            );
+          },
+        );
+      }
+
+      if (decoded is List) {
+        for (final item in decoded) {
+          if (item is Map) {
+            addMarker(Map<String, dynamic>.from(item));
+          }
+        }
+      } else if (decoded is Map) {
+        for (final value in decoded.values) {
+          if (value is Map) {
+            addMarker(Map<String, dynamic>.from(value));
+          }
+        }
+      }
+
+      if (campusMarkers.isEmpty) return;
+
+      final updatedMarkers = Map<String, Marker>.from(state.markers)
+        ..addAll(campusMarkers);
+      add(DisplayPolylineEvent(state.polylines, updatedMarkers));
+    } catch (error) {
+      debugPrint('Error cargando marcadores del campus: $error');
+    }
+  }
+
   void _onInitMap(OnMapInitializedEvent event, Emitter<MapState> emit) {
     _mapController = event.controller;
     _mapController!.setMapStyle(jsonEncode(natureMapTheme));
