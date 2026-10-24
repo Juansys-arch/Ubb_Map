@@ -38,6 +38,9 @@ class Feature {
     required this.text,
     required this.placeName,
     required this.center,
+    this.facultad,
+    this.carreras,
+    this.imagen,
   });
 
   final String id;
@@ -45,19 +48,30 @@ class Feature {
   final String text;
   final List<String> placeName;
   final List<double> center;
+  final String? facultad;
+  final List<String>? carreras;
+  final String? imagen;
 
   factory Feature.fromJson(String str) => Feature.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
   factory Feature.fromMap(Map<String, dynamic> json) => Feature(
-    id: json["id"] ?? "",
-    placeType: List<String>.from(json["placetype"]?.map((x) => x.toString()) ?? []),
-    text: json["text"] ?? "",
-    placeName: List<String>.from(json["placeName"]?.map((x) => x.toString()) ?? []),
-   
-    center: List<double>.from(json["center"]?.map((x) => x.toDouble()) ?? []),
-  );
+        id: json["id"]?.toString() ?? "",
+        placeType: List<String>.from(
+            json["placetype"]?.map((x) => x.toString()) ?? []),
+        text: json["text"]?.toString() ?? "",
+        placeName: List<String>.from(
+            json["placeName"]?.map((x) => x.toString()) ?? []),
+        center: List<double>.from(
+            json["center"]?.map((x) => (x as num).toDouble()) ?? []),
+        facultad: json["facultad"]?.toString(),
+        carreras: json["carreras"] is List
+            ? List<String>.from(
+                (json["carreras"] as List).map((x) => x.toString()))
+            : null,
+        imagen: json["imagen"]?.toString(),
+      );
 
   Map<String, dynamic> toMap() => {
     "id": id,
@@ -65,6 +79,9 @@ class Feature {
     "text": text,
     "placeName": placeName,
     "center": List<dynamic>.from(center.map((x) => x)),
+    "facultad": facultad,
+    "carreras": carreras,
+    "imagen": imagen,
   };
 
   @override
@@ -72,4 +89,3 @@ class Feature {
     return 'Feature: $text';
   }
 }
-

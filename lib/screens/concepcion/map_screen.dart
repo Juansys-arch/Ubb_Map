@@ -11,9 +11,11 @@ import 'package:ubb/models/models.dart';
 class MapScreen extends StatefulWidget {
   /// Código corto para mostrar en el banner (ej: "S101")
   final String? roomCode;
+
   /// Código completo con sección para buscar en Firebase (ej: "S101 FG")
   /// Si es null, se usa roomCode como query de búsqueda.
   final String? roomSearchCode;
+
   /// Nombre del edificio como fallback de búsqueda (ej: "Edificio S")
   final String? building;
 
@@ -43,6 +45,11 @@ class _MapScreenState extends State<MapScreen> {
     super.initState();
     locationBloc = BlocProvider.of<LocationBloc>(context);
     locationBloc.startFollowingUser();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        BlocProvider.of<MapBloc>(context).loadCampusMarkers(context);
+      }
+    });
 
     if (_searchQuery != null || widget.building != null) {
       _waitForLocationAndDraw();
@@ -56,7 +63,9 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     _locationSub = locationBloc.stream.listen((state) {
-      if (state.lastKnowLocation != null && !_routeDrawn && !_isSearchingRoute) {
+      if (state.lastKnowLocation != null &&
+          !_routeDrawn &&
+          !_isSearchingRoute) {
         _locationSub?.cancel();
         _locationSub = null;
         WidgetsBinding.instance.addPostFrameCallback((_) => _drawRouteToRoom());
@@ -85,12 +94,16 @@ class _MapScreenState extends State<MapScreen> {
       // 1️⃣ Buscar con el código completo (ej: "S101 FG")
       var places = <Feature>[];
       if (_searchQuery != null && _searchQuery!.isNotEmpty) {
-        places = await searchBloc.getPlacesByQuery(currentLocation, _searchQuery!);
+        places =
+            await searchBloc.getPlacesByQuery(currentLocation, _searchQuery!);
       }
 
       // 2️⃣ Fallback: buscar por nombre del edificio (ej: "Edificio S")
-      if (places.isEmpty && widget.building != null && widget.building!.isNotEmpty) {
-        places = await searchBloc.getPlacesByQuery(currentLocation, widget.building!);
+      if (places.isEmpty &&
+          widget.building != null &&
+          widget.building!.isNotEmpty) {
+        places = await searchBloc.getPlacesByQuery(
+            currentLocation, widget.building!);
       }
 
       if (!mounted) return;

@@ -52,6 +52,7 @@ class MapState extends Equatable {
         isFollowingUser,
         showMyRoute,
         polylines,
+        markers,
         medicalMarkers,
         showMedicalMarkers,
         customMedicalMarkerIcon
