@@ -19,11 +19,19 @@ class MapScreen extends StatefulWidget {
   /// Nombre del edificio como fallback de búsqueda (ej: "Edificio S")
   final String? building;
 
+  /// Coordenadas de destino directo (ej: para Rectoría, DDE, Finanzas)
+  final LatLng? targetLocation;
+
+  /// Título de destino directo
+  final String? targetTitle;
+
   const MapScreen({
     super.key,
     this.roomCode,
     this.roomSearchCode,
     this.building,
+    this.targetLocation,
+    this.targetTitle,
   });
 
   @override
@@ -47,11 +55,17 @@ class _MapScreenState extends State<MapScreen> {
     locationBloc.startFollowingUser();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        BlocProvider.of<MapBloc>(context).loadCampusMarkers(context);
+        final mapBloc = BlocProvider.of<MapBloc>(context);
+        mapBloc.loadCampusMarkers(context);
+        if (widget.targetLocation != null) {
+          mapBloc.moveCamera(widget.targetLocation!);
+        }
       }
     });
 
-    if (_searchQuery != null || widget.building != null) {
+    if (widget.targetLocation != null ||
+        _searchQuery != null ||
+        widget.building != null) {
       _waitForLocationAndDraw();
     }
   }
@@ -91,29 +105,38 @@ class _MapScreenState extends State<MapScreen> {
     final mapBloc = BlocProvider.of<MapBloc>(context);
 
     try {
-      // 1️⃣ Buscar con el código completo (ej: "S101 FG")
-      var places = <Feature>[];
-      if (_searchQuery != null && _searchQuery!.isNotEmpty) {
-        places =
-            await searchBloc.getPlacesByQuery(currentLocation, _searchQuery!);
-      }
+      LatLng? destinationPoint = widget.targetLocation;
 
-      // 2️⃣ Fallback: buscar por nombre del edificio (ej: "Edificio S")
-      if (places.isEmpty &&
-          widget.building != null &&
-          widget.building!.isNotEmpty) {
-        places = await searchBloc.getPlacesByQuery(
-            currentLocation, widget.building!);
+      if (destinationPoint == null) {
+        // 1️⃣ Buscar con el código completo (ej: "S101 FG")
+        var places = <Feature>[];
+        if (_searchQuery != null && _searchQuery!.isNotEmpty) {
+          places =
+              await searchBloc.getPlacesByQuery(currentLocation, _searchQuery!);
+        }
+
+        // 2️⃣ Fallback: buscar por nombre del edificio (ej: "Edificio S")
+        if (places.isEmpty &&
+            widget.building != null &&
+            widget.building!.isNotEmpty) {
+          places = await searchBloc.getPlacesByQuery(
+              currentLocation, widget.building!);
+        }
+
+        if (places.isNotEmpty) {
+          destinationPoint =
+              LatLng(places.first.center[1], places.first.center[0]);
+        }
       }
 
       if (!mounted) return;
 
-      if (places.isEmpty) {
+      if (destinationPoint == null) {
         setState(() => _isSearchingRoute = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'No se encontró "${widget.roomCode ?? _searchQuery}".\nBusca manualmente con el buscador.',
+              'No se encontró "${widget.targetTitle ?? widget.roomCode ?? _searchQuery}".\nBusca manualmente con el buscador.',
             ),
             backgroundColor: Colors.orange.shade700,
             duration: const Duration(seconds: 4),
@@ -122,10 +145,10 @@ class _MapScreenState extends State<MapScreen> {
         return;
       }
 
-      // 3️⃣ Obtener ruta hacia el primer resultado
+      // 3️⃣ Obtener ruta hacia el destino
       final destination = await searchBloc.getCoorsStartToEnd(
         currentLocation,
-        LatLng(places.first.center[1], places.first.center[0]),
+        destinationPoint,
       );
 
       if (!mounted) return;
@@ -242,7 +265,7 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              'Buscando ruta a ${widget.roomCode ?? _searchQuery}...',
+                              'Buscando ruta a ${widget.targetTitle ?? widget.roomCode ?? _searchQuery}...',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -254,8 +277,11 @@ class _MapScreenState extends State<MapScreen> {
                     ),
 
                   // Banner de destino cuando la ruta está trazada
-                  if (widget.roomCode != null && _routeDrawn)
-                    _RoomDestinationBanner(roomCode: widget.roomCode!),
+                  if ((widget.targetTitle != null || widget.roomCode != null) &&
+                      _routeDrawn)
+                    _RoomDestinationBanner(
+                      roomCode: widget.targetTitle ?? widget.roomCode!,
+                    ),
                 ],
               );
             },
