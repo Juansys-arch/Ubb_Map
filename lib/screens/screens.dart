@@ -8,6 +8,7 @@ export 'package:ubb/screens/register_screen.dart';
 export 'package:ubb/screens/reset_password_screen.dart';
 export 'package:ubb/screens/settings_screen.dart';
 export 'package:ubb/screens/schedule_screen.dart';
+export 'package:ubb/screens/building_info_screen.dart';
 export 'package:ubb/screens/campus_info_screen.dart';
 
 export 'package:ubb/screens/concepcion/map_screen.dart';
