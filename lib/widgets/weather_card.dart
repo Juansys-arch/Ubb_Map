@@ -15,115 +15,103 @@ class WeatherCardWidget extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return SizedBox(
-      width: size.width * 0.8,
-      child: SingleChildScrollView(
-        child: Column(
+      width: size.width * 0.9,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            weatherData.location,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.roboto(
+              color: AppColors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const Spacer(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${weatherData.temperature.toStringAsFixed(1)}°',
+                style: GoogleFonts.poppins(
+                  color: AppColors.white,
+                  fontSize: 42,
+                  fontWeight: FontWeight.w600,
+                  height: 0.95,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 3),
+                child: Text(
+                  weatherTranslations[weatherData.mainWeather] ??
+                      weatherData.mainWeather,
+                  style: GoogleFonts.poppins(
+                    color: AppColors.white,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              _WeatherDetail(
+                icon: 'assets/icons/wind_icon.svg',
+                value: '${weatherData.windSpeed.toStringAsFixed(1)} km/h',
+                label: 'Viento',
+              ),
+              const SizedBox(width: 18),
+              _WeatherDetail(
+                icon: 'assets/icons/raind_drop_icon.svg',
+                value: '${weatherData.humidity}%',
+                label: 'Humedad',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WeatherDetail extends StatelessWidget {
+  final String icon;
+  final String value;
+  final String label;
+
+  const _WeatherDetail({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            RichText(
-              text: TextSpan(
-                children: [
-                  WidgetSpan(
-                    child: SvgPicture.asset(
-                      'assets/icons/location_icon.svg',
-                      width: 24,
-                      height: 24,
-                    ),
-                  ),
-                  TextSpan(
-                    text: '  ${weatherData.location}',
-                    style: GoogleFonts.roboto(
-                      color: AppColors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
-            Image.asset(
-              'assets/weather_img/${weatherData.icon}.png',
-              height: size.height * 0.16,
-            ),
+            SvgPicture.asset(icon, width: 13, height: 13),
+            const SizedBox(width: 4),
             Text(
-              '${weatherData.temperature.toStringAsFixed(1)}°',
+              value,
               style: GoogleFonts.poppins(
                 color: AppColors.white,
-                fontSize: 90,
-                fontWeight: FontWeight.w600,
-                height: 1,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              weatherTranslations[weatherData.mainWeather] ??
-                  weatherData.mainWeather,
-              style: GoogleFonts.poppins(
-                color: AppColors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
-              child: const Divider(thickness: 0.2),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: size.width * 0.1,
-                vertical: size.height * 0.01,
-              ),
-              child: Row(
-                children: [
-                  Column(
-                    children: [
-                      SvgPicture.asset('assets/icons/wind_icon.svg'),
-                      Text(
-                        '${weatherData.windSpeed.toStringAsFixed(1)} km/h',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Text(
-                        'Viento',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Column(
-                    children: [
-                      SvgPicture.asset('assets/icons/raind_drop_icon.svg'),
-                      Text(
-                        '${weatherData.humidity}%',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      Text(
-                        'Humedad',
-                        style: GoogleFonts.poppins(
-                          color: AppColors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                fontSize: 11,
               ),
             ),
           ],
         ),
-      ),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: AppColors.white,
+            fontSize: 10,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:ubb/themes/colors_theme.dart';
 import '../models/weather_data.dart';
 import 'weather_card.dart';
@@ -15,7 +14,7 @@ class PageTitle extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Container(
-      height: size.height * 0.60,
+      height: size.height * 0.20,
       decoration: const BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.only(
@@ -28,16 +27,7 @@ class PageTitle extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: size.height * 0.06),
-              Text(
-                'Inicio',
-                style: GoogleFonts.roboto(
-                  color: AppColors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 16),
+              SizedBox(height: size.height * 0.025),
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,

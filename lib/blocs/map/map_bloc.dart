@@ -5,9 +5,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:ubb/blocs/bloc.dart';
 import 'package:ubb/helpers/helpers.dart';
 import 'package:ubb/models/models.dart';
+import 'package:ubb/services/services.dart';
 import 'package:ubb/themes/themes.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 part 'map_event.dart';
 part 'map_state.dart';
@@ -48,8 +48,6 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       emit(state.copyWith(medicalMarkers: updatedMarkers));
     });
 
-    loadMedicalMarkersFromJson();
-
     on<DisplayPolylineEvent>((event, emit) => emit(
         state.copyWith(polylines: event.polylines, markers: event.markers)));
 
@@ -64,46 +62,9 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     });
   }
 
-  Future<void> loadMedicalMarkersFromJson() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'https://ubbmap-94203-default-rtdb.firebaseio.com/registros_kitmarker_ccp.json'));
-
-      if (response.statusCode == 200 && response.body != 'null') {
-        final dynamic decoded = json.decode(response.body);
-
-        List<MedicalMarker> medicalMarkers = [];
-
-        if (decoded is List) {
-          medicalMarkers = decoded
-              .where((item) => item != null)
-              .map((json) => MedicalMarker.fromJson(json))
-              .toList();
-        } else if (decoded is Map) {
-          medicalMarkers = decoded.values
-              .where((item) => item != null)
-              .map((json) =>
-                  MedicalMarker.fromJson(Map<String, dynamic>.from(json)))
-              .toList();
-        }
-
-        for (final marker in medicalMarkers) {
-          add(AddMedicalMarkerEvent(marker));
-        }
-      }
-    } catch (_) {
-      // Evita romper el bloc si el nodo aún no existe en Firebase
-    }
-  }
-
   Future<void> loadCampusMarkers(BuildContext context) async {
     try {
-      final response = await http.get(Uri.parse(
-          'https://ubbmap-94203-default-rtdb.firebaseio.com/registros_ccp.json'));
-
-      if (response.statusCode != 200 || response.body == 'null') return;
-
-      final dynamic decoded = json.decode(response.body);
+      final places = await ApiService().getPlaces('ccp');
       final markerIcon = await getBuildingMarkerIcon();
       final campusMarkers = <String, Marker>{};
 
@@ -131,18 +92,8 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         );
       }
 
-      if (decoded is List) {
-        for (final item in decoded) {
-          if (item is Map) {
-            addMarker(Map<String, dynamic>.from(item));
-          }
-        }
-      } else if (decoded is Map) {
-        for (final value in decoded.values) {
-          if (value is Map) {
-            addMarker(Map<String, dynamic>.from(value));
-          }
-        }
+      for (final place in places) {
+        addMarker(place);
       }
 
       if (campusMarkers.isEmpty) return;

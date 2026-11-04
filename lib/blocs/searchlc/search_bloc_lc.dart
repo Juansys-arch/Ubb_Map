@@ -1,5 +1,3 @@
-import 'package:firebase_database/firebase_database.dart';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -53,34 +51,11 @@ class SearchBlocLC extends Bloc<SearchEventLC, SearchStateLC> {
   }
 
   Future<List<Feature>> loadPlacesFromJsonLC() async {
-    final FirebaseDatabase database = FirebaseDatabase.instance;
-    DatabaseReference reference = database.ref().child('registros_lc');
-
-    List<Feature> places = [];
-
     try {
-      DataSnapshot snapshot = await reference.get();
-
-      if (snapshot.value != null) {
-        if (snapshot.value is Map<dynamic, dynamic>) {
-          Map<dynamic, dynamic> values =
-              snapshot.value as Map<dynamic, dynamic>;
-          values.forEach((key, value) {
-            Feature place = Feature.fromMap(Map<String, dynamic>.from(value));
-            places.add(place);
-          });
-        } else if (snapshot.value is List<dynamic>) {
-          List<dynamic> values = snapshot.value as List<dynamic>;
-          for (var value in values) {
-            Feature place = Feature.fromMap(Map<String, dynamic>.from(value));
-            places.add(place);
-          }
-        }
-      }
-
-      return places;
+      final places = await ApiService().getPlaces('ccp');
+      return places.map(Feature.fromMap).toList();
     } catch (error) {
-      throw Exception('Error al cargar datos desde Firebase');
+      throw Exception('Error al cargar lugares desde la API: $error');
     }
   }
 

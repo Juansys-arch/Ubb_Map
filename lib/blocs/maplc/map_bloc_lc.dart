@@ -7,7 +7,6 @@ import 'package:ubb/helpers/helpers.dart';
 import 'package:ubb/models/models.dart';
 import 'package:ubb/themes/themes.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 part 'map_event_lc.dart';
 part 'map_state_lc.dart';
@@ -48,8 +47,6 @@ class MapBlocLC extends Bloc<MapEventLC, MapStateLC> {
       emit(state.copyWith(medicalMarkersLC: updatedMarkersLC));
     });
 
-    loadMedicalMarkersFromJson();
-
     on<DisplayPolylineEventLC>((event, emit) => emit(state.copyWith(
         polylinesLC: event.polylinesLC, markersLC: event.markersLC)));
     locationBlocLC.stream.listen((locationState) {
@@ -61,26 +58,6 @@ class MapBlocLC extends Bloc<MapEventLC, MapStateLC> {
 
       moveCamera(locationState.lastKnowLocation!);
     });
-  }
-
-  Future<void> loadMedicalMarkersFromJson() async {
-    final response = await http.get(Uri.parse(
-        'https://ubbmap-app-default-rtdb.firebaseio.com/registros_kitmarker_lc.json'));
-
-    if (response.statusCode == 200) {
-      // Decodifica la respuesta JSON.
-      final jsonList = json.decode(response.body) as List;
-
-      final medicalMarkers =
-          jsonList.map((json) => MedicalMarker.fromJson(json)).toList();
-
-      for (final marker in medicalMarkers) {
-        add(AddMedicalMarkerEventLC(marker));
-      }
-    } else {
-      // Maneja el error de la solicitud HTTP aquí si es necesario.
-      throw Exception('Error al cargar datos desde la URL');
-    }
   }
 
   void _onInitMapLC(OnMapInitializedEventLC event, Emitter<MapStateLC> emit) {

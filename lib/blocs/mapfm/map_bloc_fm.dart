@@ -7,7 +7,6 @@ import 'package:ubb/helpers/helpers.dart';
 import 'package:ubb/models/models.dart';
 import 'package:ubb/themes/themes.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 part 'map_event_fm.dart';
 part 'map_state_fm.dart';
@@ -48,8 +47,6 @@ class MapBlocFM extends Bloc<MapEventFM, MapStateFM> {
       emit(state.copyWith(medicalMarkersFM: updatedMarkersFM));
     });
 
-    loadMedicalMarkersFromJson();
-
     on<DisplayPolylineEventFM>((event, emit) => emit(state.copyWith(
         polylinesFM: event.polylinesFM, markersFM: event.markersFM)));
     locationBlocFM.stream.listen((locationState) {
@@ -61,26 +58,6 @@ class MapBlocFM extends Bloc<MapEventFM, MapStateFM> {
 
       moveCamera(locationState.lastKnowLocation!);
     });
-  }
-
-  Future<void> loadMedicalMarkersFromJson() async {
-    final response = await http.get(Uri.parse(
-        'https://ubbmap-app-default-rtdb.firebaseio.com/registros_kitmarker_fm.json'));
-
-    if (response.statusCode == 200) {
-      // Decodifica la respuesta JSON.
-      final jsonList = json.decode(response.body) as List;
-
-      final medicalMarkers =
-          jsonList.map((json) => MedicalMarker.fromJson(json)).toList();
-
-      for (final marker in medicalMarkers) {
-        add(AddMedicalMarkerEventFM(marker));
-      }
-    } else {
-      // Maneja el error de la solicitud HTTP aquí si es necesario.
-      throw Exception('Error al cargar datos desde la URL');
-    }
   }
 
   void _onInitMapFM(OnMapInitializedEventFM event, Emitter<MapStateFM> emit) {

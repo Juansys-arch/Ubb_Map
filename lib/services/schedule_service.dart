@@ -1,30 +1,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:ubb/models/class_schedule.dart';
+import 'package:ubb/services/api_service.dart';
 
 class ScheduleService {
-  final FirebaseDatabase _database;
+  ScheduleService({ApiService? apiService})
+      : _apiService = apiService ?? ApiService();
 
-  ScheduleService({FirebaseDatabase? database})
-      : _database = database ??
-            FirebaseDatabase.instanceFor(
-              app: Firebase.app(),
-              databaseURL: 'https://ubbmap-94203-default-rtdb.firebaseio.com',
-            );
+  final ApiService _apiService;
 
   Future<List<ClassSchedule>> fetchForCurrentUser() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      throw StateError('La sesión de Firebase no está disponible. Inicia sesión nuevamente.');
+      throw StateError(
+          'La sesión no está disponible. Inicia sesión nuevamente.');
     }
 
-    final snapshot = await _database
-        .ref('schedules/${user.uid}')
-        .get()
-        .timeout(const Duration(seconds: 10));
-    return _entries(snapshot.value)
+    final schedule = await _apiService.get('/schedules/${user.uid}');
+    return _entries(schedule)
         .map(_parseSchedule)
         .whereType<ClassSchedule>()
         .toList();
@@ -128,7 +121,9 @@ class ScheduleService {
       return Color(value.toInt());
     }
     final parsed = int.tryParse(_text(value).replaceFirst('#', ''), radix: 16);
-    return parsed == null ? const Color(0xFFE3F2FD) : Color(0xFF000000 | parsed);
+    return parsed == null
+        ? const Color(0xFFE3F2FD)
+        : Color(0xFF000000 | parsed);
   }
 
   String _mapRoute(String campus) {

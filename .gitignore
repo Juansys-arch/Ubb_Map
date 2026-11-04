@@ -45,3 +45,8 @@ app.*.map.json
 /android/app/release
 # Widget Preview related
 .widget_preview/
+
+# Backend node_modules y variables de entorno
+Backend/node_modules/
+Backend/.env
+environments/.env

@@ -1,11 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:ubb/models/models.dart';
 import 'package:ubb/services/services.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
@@ -51,40 +49,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   Future<List<Feature>> loadPlacesFromJsonCCP() async {
-    final database = FirebaseDatabase.instanceFor(
-      app: Firebase.app(),
-      databaseURL: "https://ubbmap-94203-default-rtdb.firebaseio.com",
-    );
-
-    final reference = database.ref().child('registros_ccp');
-    List<Feature> places = [];
-
     try {
-      DataSnapshot snapshot = await reference.get();
-
-      if (snapshot.value != null) {
-        if (snapshot.value is Map) {
-          final values = Map<String, dynamic>.from(snapshot.value as Map);
-
-          values.forEach((key, value) {
-            final place = Feature.fromMap(Map<String, dynamic>.from(value));
-            places.add(place);
-          });
-        } else if (snapshot.value is List) {
-          final values = snapshot.value as List;
-
-          for (var value in values) {
-            if (value != null) {
-              final place = Feature.fromMap(Map<String, dynamic>.from(value));
-              places.add(place);
-            }
-          }
-        }
-      }
-
-      return places;
+      final places = await ApiService().getPlaces('ccp');
+      return places.map(Feature.fromMap).toList();
     } catch (error) {
-      throw Exception('Error al cargar datos desde Firebase');
+      throw Exception('Error al cargar lugares desde la API: $error');
     }
   }
 
@@ -124,19 +93,19 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               normalizeText(name.replaceAll(RegExp('[^a-zA-Z]+'), '')) ==
               queryLetters))
           .toList();
-      
+
       if (filteredPlaces.isNotEmpty) {
         add(OnNewPlacesFoundEvent(filteredPlaces));
         return filteredPlaces;
       }
     }
 
-    // 2. Intento por texto en Firebase
+    // 2. Intento por texto en la API
     final filteredPlaces = places
-        .where((place) => 
+        .where((place) =>
             normalizeText(place.text).contains(normalizedQuery) ||
-            place.placeName.any((name) => normalizeText(name).contains(normalizedQuery))
-        )
+            place.placeName
+                .any((name) => normalizeText(name).contains(normalizedQuery)))
         .toList();
 
     if (filteredPlaces.isNotEmpty) {
@@ -144,9 +113,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       return filteredPlaces;
     }
 
-    // 3. Fallback a Nominatim (para cosas que no están en Firebase como "Lab3", "Laboratorios")
+    // 3. Fallback a Nominatim para lugares que no están en la API.
     try {
-      final nominatimPlaces = await trafficService.getResultsByQuery(proximity, query);
+      final nominatimPlaces =
+          await trafficService.getResultsByQuery(proximity, query);
       if (nominatimPlaces.isNotEmpty) {
         add(OnNewPlacesFoundEvent(nominatimPlaces));
         return nominatimPlaces;
