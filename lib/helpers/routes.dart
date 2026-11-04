@@ -1,3 +1,4 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/screens.dart';
 
@@ -19,13 +20,19 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/map_screen',
       builder: (context, state) {
-        final extra = state.extra as Map<String, String>?;
+        final extra = state.extra as Map<String, dynamic>?;
         return LoadingScreen(
-          roomCode: extra?['room'],
-          roomSearchCode: extra?['code'],
-          building: extra?['building'],
+          roomCode: extra?['room'] as String?,
+          roomSearchCode: extra?['code'] as String?,
+          building: extra?['building'] as String?,
+          targetLocation: extra?['targetLocation'] as LatLng?,
+          targetTitle: extra?['targetTitle'] as String?,
         );
       },
+    ),
+    GoRoute(
+      path: '/building_info',
+      builder: (context, state) => const BuildingInfoScreen(),
     ),
     GoRoute(
       path: '/map_screen_fm',
