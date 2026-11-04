@@ -3,3 +3,5 @@ export 'package:ubb/services/auth_service.dart';
 export 'package:ubb/services/places_interceptor.dart';
 export 'package:ubb/services/traffic_interceptor.dart';
 export 'package:ubb/services/traffic_service.dart';
+export 'package:ubb/services/campus_info_service.dart';
+export 'package:ubb/services/schedule_service.dart';

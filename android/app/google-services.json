@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "1013399529881",
-    "project_id": "ubbmap-app",
-    "storage_bucket": "ubbmap-app.firebasestorage.app"
+    "project_number": "129486200735",
+    "firebase_url": "https://ubbmap-94203-default-rtdb.firebaseio.com",
+    "project_id": "ubbmap-94203",
+    "storage_bucket": "ubbmap-94203.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1013399529881:android:d06046d9fa185d4edf0b08",
+        "mobilesdk_app_id": "1:129486200735:android:61d990000747e2b9d6e7aa",
         "android_client_info": {
           "package_name": "cl.nsqws.ubbmap"
         }
@@ -15,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCeYg1cvqUXCMTeI2WrtDFVjju-Uorh5yY"
+          "current_key": "AIzaSyBZg_EiParuGELr3N2qTSWHNKMaEaw_MmA"
         }
       ],
       "services": {

@@ -19,7 +19,7 @@ class MapScreen extends StatefulWidget {
   /// Nombre del edificio como fallback de búsqueda (ej: "Edificio S")
   final String? building;
 
-  /// Coordenadas de destino directo (ej: para Rectoría, DDE, Finanzas)
+  /// Coordenadas de destino directo (ej: eventos, Rectoría, DDE, Finanzas)
   final LatLng? targetLocation;
 
   /// Título de destino directo
@@ -45,7 +45,6 @@ class _MapScreenState extends State<MapScreen> {
   bool _isSearchingRoute = false;
 
   /// Query principal para buscar en Firebase.
-  /// Usa el código con sección si está disponible, si no el código corto.
   String? get _searchQuery => widget.roomSearchCode ?? widget.roomCode;
 
   @override
@@ -87,12 +86,6 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  /// Busca el aula en Firebase y traza la ruta.
-  ///
-  /// Estrategia de búsqueda:
-  /// 1. Busca con el código completo (ej: "S101 FG") → el regex extrae "FG"
-  ///    y busca en placeName. Firebase tiene entradas como "S101II", "FG", etc.
-  /// 2. Fallback: busca por nombre del edificio (ej: "Edificio S")
   Future<void> _drawRouteToRoom() async {
     if (_routeDrawn || _isSearchingRoute || !mounted) return;
 
@@ -156,10 +149,16 @@ class _MapScreenState extends State<MapScreen> {
       _routeDrawn = true;
       setState(() => _isSearchingRoute = false);
 
-      await mapBloc.drawRoutePolyline(destination);
+      await mapBloc.drawRoutePolyline(
+        destination,
+        exactDestination: widget.targetLocation,
+      );
 
       if (mounted) {
-        mapBloc.moveCamera(destination.points.last);
+        mapBloc.moveCamera(
+          destinationPoint,
+          zoom: widget.targetLocation != null ? 19 : 17.5,
+        );
       }
     } catch (e) {
       _routeDrawn = false;
@@ -233,7 +232,6 @@ class _MapScreenState extends State<MapScreen> {
                   const SearchBar(),
                   const ManualMarker(),
 
-                  // Spinner mientras se calcula la ruta
                   if (_isSearchingRoute)
                     Positioned(
                       top: 70,
@@ -276,7 +274,6 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                     ),
 
-                  // Banner de destino cuando la ruta está trazada
                   if ((widget.targetTitle != null || widget.roomCode != null) &&
                       _routeDrawn)
                     _RoomDestinationBanner(
