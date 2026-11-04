@@ -152,7 +152,7 @@ class _LoginFormState extends State<_LoginForm> {
                 hintText: 'nombre.apellido0000@alumnos.ubiobio.cl',
                 labelText: 'Correo electrónico',
               ),
-              onChanged: (value) => loginForm.email = value,
+              onChanged: (value) => loginForm.email = value.trim().toLowerCase(),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Debes rellenar el campo de texto.';
@@ -279,9 +279,8 @@ class _LoginFormState extends State<_LoginForm> {
                         context.replace('/home');
                       } else {
                         showDialog<void>(
-                          builder: (context) => const DialogWidget(
-                            text:
-                                'El correo electrónico o la contraseña son incorrectos. Verifica tus credenciales e intenta nuevamente.',
+                          builder: (context) => DialogWidget(
+                            text: errorMessage,
                             iconPath: 'warning_icon',
                           ),
                           context: context,

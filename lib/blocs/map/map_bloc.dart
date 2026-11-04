@@ -184,14 +184,22 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     emit(state.copyWith(polylines: currentPolylines));
   }
 
-  Future drawRoutePolyline(RouteDestination destination) async {
+  Future drawRoutePolyline(
+    RouteDestination destination, {
+    LatLng? exactDestination,
+  }) async {
+    final routePoints = List<LatLng>.from(destination.points);
+    if (exactDestination != null && routePoints.isNotEmpty) {
+      routePoints[routePoints.length - 1] = exactDestination;
+    }
+
     Polyline backgroundRoute = Polyline(
       jointType: JointType.round,
       geodesic: true,
       color: const Color(0xff0A2861).withOpacity(0.6),
       polylineId: const PolylineId('route_background'),
       width: 9,
-      points: destination.points,
+      points: routePoints,
       startCap: Cap.roundCap,
       endCap: Cap.roundCap,
     );
@@ -202,7 +210,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       color: const Color(0xff0A2861),
       polylineId: const PolylineId('route_foreground'),
       width: 4,
-      points: destination.points,
+      points: routePoints,
       startCap: Cap.roundCap,
       endCap: Cap.roundCap,
     );
@@ -212,7 +220,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
     final startMarker = Marker(
       markerId: const MarkerId('start'),
-      position: destination.points.first,
+      position: routePoints.first,
       icon: startMarkerPin,
       infoWindow: const InfoWindow(
         title: 'Esta es tu posición actual!',
@@ -221,7 +229,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
     final endMarker = Marker(
       markerId: const MarkerId('end'),
-      position: destination.points.last,
+      position: exactDestination ?? routePoints.last,
       icon: endMarkerPin,
       infoWindow: const InfoWindow(
         title: 'Este es tu destino!',

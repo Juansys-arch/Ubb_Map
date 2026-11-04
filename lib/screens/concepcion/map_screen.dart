@@ -18,12 +18,18 @@ class MapScreen extends StatefulWidget {
 
   /// Nombre del edificio como fallback de búsqueda (ej: "Edificio S")
   final String? building;
+  final double? destinationLatitude;
+  final double? destinationLongitude;
+  final String? destinationName;
 
   const MapScreen({
     super.key,
     this.roomCode,
     this.roomSearchCode,
     this.building,
+    this.destinationLatitude,
+    this.destinationLongitude,
+    this.destinationName,
   });
 
   @override
@@ -40,6 +46,9 @@ class _MapScreenState extends State<MapScreen> {
   /// Usa el código con sección si está disponible, si no el código corto.
   String? get _searchQuery => widget.roomSearchCode ?? widget.roomCode;
 
+  bool get _hasCoordinateDestination =>
+      widget.destinationLatitude != null && widget.destinationLongitude != null;
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +60,9 @@ class _MapScreenState extends State<MapScreen> {
       }
     });
 
-    if (_searchQuery != null || widget.building != null) {
+    if (_hasCoordinateDestination ||
+        _searchQuery != null ||
+        widget.building != null) {
       _waitForLocationAndDraw();
     }
   }
@@ -91,15 +102,21 @@ class _MapScreenState extends State<MapScreen> {
     final mapBloc = BlocProvider.of<MapBloc>(context);
 
     try {
-      // 1️⃣ Buscar con el código completo (ej: "S101 FG")
+      LatLng? destinationCoordinates;
       var places = <Feature>[];
-      if (_searchQuery != null && _searchQuery!.isNotEmpty) {
+      if (_hasCoordinateDestination) {
+        destinationCoordinates = LatLng(
+          widget.destinationLatitude!,
+          widget.destinationLongitude!,
+        );
+      } else if (_searchQuery != null && _searchQuery!.isNotEmpty) {
         places =
             await searchBloc.getPlacesByQuery(currentLocation, _searchQuery!);
       }
 
       // 2️⃣ Fallback: buscar por nombre del edificio (ej: "Edificio S")
-      if (places.isEmpty &&
+      if (destinationCoordinates == null &&
+          places.isEmpty &&
           widget.building != null &&
           widget.building!.isNotEmpty) {
         places = await searchBloc.getPlacesByQuery(
@@ -108,7 +125,7 @@ class _MapScreenState extends State<MapScreen> {
 
       if (!mounted) return;
 
-      if (places.isEmpty) {
+      if (destinationCoordinates == null && places.isEmpty) {
         setState(() => _isSearchingRoute = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -125,7 +142,8 @@ class _MapScreenState extends State<MapScreen> {
       // 3️⃣ Obtener ruta hacia el primer resultado
       final destination = await searchBloc.getCoorsStartToEnd(
         currentLocation,
-        LatLng(places.first.center[1], places.first.center[0]),
+        destinationCoordinates ??
+            LatLng(places.first.center[1], places.first.center[0]),
       );
 
       if (!mounted) return;
@@ -133,10 +151,16 @@ class _MapScreenState extends State<MapScreen> {
       _routeDrawn = true;
       setState(() => _isSearchingRoute = false);
 
-      await mapBloc.drawRoutePolyline(destination);
+      await mapBloc.drawRoutePolyline(
+        destination,
+        exactDestination: destinationCoordinates,
+      );
 
       if (mounted) {
-        mapBloc.moveCamera(destination.points.last);
+        mapBloc.moveCamera(
+          destinationCoordinates ?? destination.points.last,
+          zoom: destinationCoordinates != null ? 19 : 17.5,
+        );
       }
     } catch (e) {
       _routeDrawn = false;
@@ -242,7 +266,7 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              'Buscando ruta a ${widget.roomCode ?? _searchQuery}...',
+                              'Buscando ruta a ${widget.destinationName ?? widget.roomCode ?? _searchQuery}...',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,

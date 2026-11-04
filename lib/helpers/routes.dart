@@ -19,11 +19,14 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/map_screen',
       builder: (context, state) {
-        final extra = state.extra as Map<String, String>?;
+        final extra = state.extra as Map<String, dynamic>?;
         return LoadingScreen(
-          roomCode: extra?['room'],
-          roomSearchCode: extra?['code'],
-          building: extra?['building'],
+          roomCode: extra?['room'] as String?,
+          roomSearchCode: extra?['code'] as String?,
+          building: extra?['building'] as String?,
+          destinationLatitude: (extra?['latitude'] as num?)?.toDouble(),
+          destinationLongitude: (extra?['longitude'] as num?)?.toDouble(),
+          destinationName: extra?['name'] as String?,
         );
       },
     ),

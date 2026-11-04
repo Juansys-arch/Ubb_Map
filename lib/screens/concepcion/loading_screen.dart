@@ -7,16 +7,24 @@ import 'package:ubb/screens/screens.dart';
 class LoadingScreen extends StatelessWidget {
   /// Código corto para mostrar en el banner (ej: "S101")
   final String? roomCode;
+
   /// Código completo con sección para buscar en Firebase (ej: "S101 FG")
   final String? roomSearchCode;
+
   /// Nombre del edificio como fallback de búsqueda (ej: "Edificio S")
   final String? building;
+  final double? destinationLatitude;
+  final double? destinationLongitude;
+  final String? destinationName;
 
   const LoadingScreen({
     super.key,
     this.roomCode,
     this.roomSearchCode,
     this.building,
+    this.destinationLatitude,
+    this.destinationLongitude,
+    this.destinationName,
   });
 
   @override
@@ -28,6 +36,9 @@ class LoadingScreen extends StatelessWidget {
                 roomCode: roomCode,
                 roomSearchCode: roomSearchCode,
                 building: building,
+                destinationLatitude: destinationLatitude,
+                destinationLongitude: destinationLongitude,
+                destinationName: destinationName,
               )
             : const GpsAccessScreen();
       },
