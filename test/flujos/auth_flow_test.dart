@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:ubb/providers/login_form_provider.dart';
 import 'package:ubb/screens/login_screen.dart';
 import 'package:ubb/services/auth_service.dart';
 import 'package:ubb/widgets/settings_content.dart';
 
+class MockAuthService extends Mock implements AuthService {}
+
 void main() {
   group('Flujo 1: Autenticación y Cierre de Sesión (Auth Flow)', () {
+    late MockAuthService mockAuthService;
+
+    setUp(() {
+      mockAuthService = MockAuthService();
+      when(() => mockAuthService.getUserData()).thenAnswer((_) async => {
+            'displayName': 'Estudiante UBB',
+            'email': 'alumno@alumnos.ubiobio.cl',
+            'createdAt': '',
+          });
+      when(() => mockAuthService.login(any(), any())).thenAnswer((_) async => null);
+      when(() => mockAuthService.logout()).thenAnswer((_) async {});
+    });
+
     testWidgets('Validación de formulario de Login y entrada de credenciales',
         (WidgetTester tester) async {
       // 1. Montar pantalla de Login con sus Providers requeridos
@@ -15,7 +31,7 @@ void main() {
         MaterialApp(
           home: MultiProvider(
             providers: [
-              ChangeNotifierProvider(create: (_) => AuthService()),
+              ChangeNotifierProvider<AuthService>.value(value: mockAuthService),
               ChangeNotifierProvider(create: (_) => LoginFormProvider()),
             ],
             child: const LoginScreen(),
@@ -53,7 +69,7 @@ void main() {
           home: Scaffold(
             body: MultiProvider(
               providers: [
-                ChangeNotifierProvider(create: (_) => AuthService()),
+                ChangeNotifierProvider<AuthService>.value(value: mockAuthService),
               ],
               child: const SettingsTitle(),
             ),

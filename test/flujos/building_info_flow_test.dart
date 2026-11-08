@@ -27,7 +27,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verificar que el resultado de Finanzas sigue visible y Rectoría se ocultó por el filtro
-      expect(find.text('Departamento de Finanzas y Tesorería'), findsOneWidget);
+      expect(find.text('Dirección de Finanzas y Cobranzas'), findsOneWidget);
       expect(find.text('Rectoría UBB'), findsNothing);
 
       // 4. Limpiar búsqueda

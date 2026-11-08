@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:ubb/helpers/validators.dart';
 import 'package:ubb/providers/login_form_provider.dart';
 import 'package:ubb/themes/colors_theme.dart';
 import 'package:ubb/ui/input_decorations.dart';
@@ -152,24 +153,9 @@ class _LoginFormState extends State<_LoginForm> {
                 hintText: 'nombre.apellido0000@alumnos.ubiobio.cl',
                 labelText: 'Correo electrónico',
               ),
-              onChanged: (value) => loginForm.email = value.trim().toLowerCase(),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Debes rellenar el campo de texto.';
-                }
-
-                if (value.length < 14 || value.length > 100) {
-                  return 'El correo debe tener entre 14 y 100 caracteres.';
-                }
-
-                RegExp emailUsuario =
-                    RegExp(r'^[a-z0-9.]+@(alumnos\.ubiobio\.cl|ubiobio\.cl)$');
-                if (!emailUsuario.hasMatch(value)) {
-                  return 'El correo no es válido.';
-                }
-
-                return null;
-              },
+              onChanged: (value) =>
+                  loginForm.email = value.trim().toLowerCase(),
+              validator: Validators.validateEmail,
             ),
             const SizedBox(height: 30),
             TextFormField(
@@ -196,34 +182,7 @@ class _LoginFormState extends State<_LoginForm> {
                 ),
               ),
               onChanged: (value) => loginForm.password = value,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Debes rellenar el campo de texto.';
-                }
-
-                if (value.length < 6) {
-                  return 'La contraseña debe contener al menos 6 caracteres.';
-                }
-
-                bool hasUppercase = false;
-                bool hasLowercase = false;
-
-                for (int i = 0; i < value.length; i++) {
-                  if (RegExp(r'[a-zA-Z]').hasMatch(value[i])) {
-                    if (value[i].toUpperCase() == value[i]) {
-                      hasUppercase = true;
-                    } else if (value[i].toLowerCase() == value[i]) {
-                      hasLowercase = true;
-                    }
-                  }
-
-                  if (hasUppercase && hasLowercase) {
-                    return null;
-                  }
-                }
-
-                return 'Se requiere una letra mayúscula y una minúscula.';
-              },
+              validator: Validators.validatePassword,
             ),
             const SizedBox(height: 5),
             TextButton(
