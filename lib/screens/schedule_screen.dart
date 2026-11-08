@@ -5,7 +5,8 @@ import 'package:ubb/services/schedule_service.dart';
 import 'package:ubb/themes/colors_theme.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({super.key});
+  final Future<List<ClassSchedule>>? scheduleFuture;
+  const ScheduleScreen({super.key, this.scheduleFuture});
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
@@ -19,7 +20,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   void initState() {
     super.initState();
-    _schedule = ScheduleService().fetchForCurrentUser();
+    _schedule = widget.scheduleFuture ?? ScheduleService().fetchForCurrentUser();
   }
 
   void _reload() {

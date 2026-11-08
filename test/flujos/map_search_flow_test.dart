@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ubb/blocs/bloc.dart';
 import 'package:ubb/services/services.dart';
+import 'package:ubb/widgets/widgets.dart';
 import 'package:ubb/widgets/concepcion/search_bar.dart' as ubb_search;
 
 void main() {
@@ -34,11 +35,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // 2. Verificar que se renderiza el botón de buscar
-      final searchTrigger = find.text('Buscar...');
+      final searchTrigger = find.text('¿Dónde quieres ir?');
       expect(searchTrigger, findsOneWidget);
 
       // 3. Verificar presencia del botón atrás junto al buscador
-      expect(find.byIcon(Icons.arrow_back_ios_new), findsOneWidget);
+      expect(find.byType(BtnBack), findsOneWidget);
     });
   });
 }
