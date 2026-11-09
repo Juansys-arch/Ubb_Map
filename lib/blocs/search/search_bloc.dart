@@ -10,10 +10,13 @@ part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   TrafficService trafficService;
+  final ApiService apiService;
 
   SearchBloc({
     required this.trafficService,
-  }) : super(const SearchState()) {
+    ApiService? apiService,
+  })  : apiService = apiService ?? ApiService(),
+        super(const SearchState()) {
     on<OnActivateManualMarkerEvent>(
         (event, emit) => emit(state.copyWith(displayManualMarker: true)));
     on<OnDeactivateManualMarkerEvent>(
@@ -50,7 +53,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   Future<List<Feature>> loadPlacesFromJsonCCP() async {
     try {
-      final places = await ApiService().getPlaces('ccp');
+      final places = await apiService.getPlaces('ccp');
       return places.map(Feature.fromMap).toList();
     } catch (error) {
       throw Exception('Error al cargar lugares desde la API: $error');

@@ -4,10 +4,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  ApiService({http.Client? client})
+  ApiService({
+    http.Client? client,
+    String? baseUrl,
+  })
       : _client = client ?? http.Client(),
-        _baseUrl =
-            (dotenv.env['API_URL'] ?? '').replaceFirst(RegExp(r'/$'), '');
+        _baseUrl = (baseUrl ?? dotenv.env['API_URL'] ?? '')
+            .replaceFirst(RegExp(r'/$'), '');
 
   final http.Client _client;
   final String _baseUrl;

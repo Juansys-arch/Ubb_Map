@@ -80,3 +80,57 @@ flutter pub get
 
 # 5. Ejecutar la aplicación
 flutter run
+```
+
+### Pruebas
+
+Las pruebas están separadas según el tipo de ejecución:
+
+```bash
+# Pruebas unitarias, sin dependencias externas
+flutter test test/unit
+
+# Pruebas de integración ejecutables desde terminal
+flutter test test/integration
+
+# Flujos E2E visuales (requieren un emulador o dispositivo)
+flutter test integration_test
+```
+
+Los flujos E2E se encuentran en `integration_test/` y usan
+`IntegrationTestWidgetsFlutterBinding`. Las pruebas de `test/integration/`
+validan integraciones de servicios, almacenamiento y widgets con mocks o
+servicios locales; las que requieren backend real deben ejecutarse con Node.js
+y MongoDB disponibles.
+
+El flujo de horario consulta MongoDB a través del backend y usa por defecto la
+cuenta técnica `test.qa@alumnos.ubiobio.cl`. Si necesitas otra cuenta, puedes
+sobrescribir los valores mediante variables de compilación:
+
+```bash
+flutter test integration_test/schedule_to_map_flow_test.dart \
+  --dart-define=TEST_EMAIL="correo_de_prueba" \
+  --dart-define=TEST_PASSWORD="contraseña_de_prueba" \
+  --dart-define=TEST_API_URL="http://10.0.2.2:3000/api"
+```
+
+Para un dispositivo físico, reemplaza `10.0.2.2` por la dirección IP local
+del computador donde se ejecuta Node.js. `10.0.2.2` corresponde al emulador
+Android y apunta al `localhost` del computador.
+
+En Git Bash, las continuaciones de línea usan `\`, no `^`. El carácter `^`
+pertenece a CMD y provoca que `--dart-define` se ejecute como un comando
+separado; en ese caso la prueba vuelve a usar `API_URL` desde
+`environments/.env`. Para el dispositivo físico, ejecuta el flujo completo
+así:
+
+```bash
+flutter test integration_test/all_flows_test.dart \
+  --dart-define=TEST_API_URL="http://192.168.1.6:3000/api"
+```
+
+También puedes escribirlo en una sola línea:
+
+```bash
+flutter test integration_test/all_flows_test.dart --dart-define=TEST_API_URL="http://192.168.1.6:3000/api"
+```

@@ -4,19 +4,23 @@ import 'package:ubb/models/class_schedule.dart';
 import 'package:ubb/services/api_service.dart';
 
 class ScheduleService {
-  ScheduleService({ApiService? apiService})
-      : _apiService = apiService ?? ApiService();
+  ScheduleService({
+    ApiService? apiService,
+    String? userId,
+  })  : _apiService = apiService ?? ApiService(),
+        _userId = userId;
 
   final ApiService _apiService;
+  final String? _userId;
 
   Future<List<ClassSchedule>> fetchForCurrentUser() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
+    final userId = _userId ?? FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null || userId.isEmpty) {
       throw StateError(
           'La sesión no está disponible. Inicia sesión nuevamente.');
     }
 
-    final schedule = await _apiService.get('/schedules/${user.uid}');
+    final schedule = await _apiService.get('/schedules/$userId');
     return _entries(schedule)
         .map(_parseSchedule)
         .whereType<ClassSchedule>()
