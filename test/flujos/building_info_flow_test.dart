@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ubb/models/building_info.dart';
 import 'package:ubb/screens/building_info_screen.dart';
 
 void main() {
@@ -23,7 +22,14 @@ void main() {
       final searchInput = find.byType(TextField);
       expect(searchInput, findsOneWidget);
 
-      await tester.enterText(searchInput, 'Finanzas');
+      const query = 'Finanzas';
+      for (var index = 1; index <= query.length; index++) {
+        await tester.enterText(
+          searchInput,
+          query.substring(0, index),
+        );
+        await tester.pump();
+      }
       await tester.pumpAndSettle();
 
       // Verificar que el resultado de Finanzas sigue visible y Rectoría se ocultó por el filtro
