@@ -239,6 +239,7 @@ class _BuildingInfoScreenState extends State<BuildingInfoScreen> {
                     itemBuilder: (context, index) {
                       final building = filteredBuildings[index];
                       return FadeInUp(
+                        key: ValueKey(building.id),
                         duration: Duration(milliseconds: 300 + (index * 100)),
                         child: _BuildingCard(building: building),
                       );
