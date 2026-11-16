@@ -10,10 +10,116 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Conexión a MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('>>> Conectado exitosamente a MongoDB Atlas'))
+// Conexión a MongoDB
+const mongoUri = process.env.MONGO_URI || 'mongodb://db:27017/ubbmap_db';
+mongoose.connect(mongoUri)
+  .then(async () => {
+    console.log('>>> Conectado exitosamente a MongoDB:', mongoUri);
+    await seedDefaultData();
+  })
   .catch(err => console.error('>>> Error de conexion a MongoDB:', err));
+
+async function seedDefaultData() {
+  try {
+    const placesCount = await Place.countDocuments();
+    if (placesCount === 0) {
+      console.log('>>> Poblando lugares iniciales del Campus Concepción...');
+      await Place.insertMany([
+        {
+          id: 'rectoria',
+          text: 'Rectoría UBB',
+          imagen: 'https://ubiobio.cl/imagenes/rectoria.jpg',
+          categoria: 'Administración',
+          facultad: 'Administración Central',
+          carreras: ['Dirección Superior', 'Secretaría General'],
+          tramites: ['Secretaría General', 'Decretos', 'Convenios Institucionales'],
+          faqs: [{ pregunta: '¿Qué trámites se realizan aquí?', respuesta: 'Gestión institucional y secretaría general.' }],
+          placeName: ['Rectoría UBB', 'Rectoría'],
+          placetype: ['poi'],
+          center: [-73.01320, -36.82145]
+        },
+        {
+          id: 'dde',
+          text: 'Dirección de Desarrollo Estudiantil (DDE)',
+          imagen: 'https://ubiobio.cl/imagenes/dde.jpg',
+          categoria: 'Bienestar',
+          facultad: 'Bienestar Estudiantil',
+          carreras: ['Trabajo Social', 'Salud Estudiantil'],
+          tramites: ['TNE / Pase Escolar', 'Becas y Créditos', 'Atención Médica y Dental', 'Apoyo Psicológico'],
+          faqs: [{ pregunta: '¿Cómo revalido mi TNE?', respuesta: 'Debes presentar tu cédula y pase en las oficinas de bienestar.' }],
+          placeName: ['Dirección de Desarrollo Estudiantil', 'DDE'],
+          placetype: ['poi'],
+          center: [-73.01410, -36.82280]
+        },
+        {
+          id: 'finanzas',
+          text: 'Departamento de Finanzas y Tesorería',
+          imagen: 'https://ubiobio.cl/imagenes/finanzas.jpg',
+          categoria: 'Finanzas',
+          facultad: 'Administración y Finanzas',
+          carreras: ['Cobranzas', 'Aranceles'],
+          tramites: ['Pago de Aranceles y Matrícula', 'Convenios de Pago', 'Pagarés y Certificados de Deuda'],
+          faqs: [{ pregunta: '¿Dónde puedo pagar mi arancel?', respuesta: 'En ventanilla de tesorería o vía portal online.' }],
+          placeName: ['Finanzas UBB', 'Tesorería'],
+          placetype: ['poi'],
+          center: [-73.01250, -36.82180]
+        },
+        {
+          id: 'biblioteca',
+          text: 'Biblioteca Central UBB',
+          imagen: 'https://ubiobio.cl/imagenes/biblioteca.jpg',
+          categoria: 'Académico',
+          facultad: 'Dirección de Bibliotecas',
+          carreras: ['Préstamo de Libros', 'Salas de Estudio'],
+          tramites: ['Préstamo de Bibliografía', 'Reserva de Cubículos', 'Acceso a Bases de Datos'],
+          faqs: [{ pregunta: '¿Cuál es el horario de biblioteca?', respuesta: 'Lunes a Viernes de 08:30 a 20:00 hrs.' }],
+          placeName: ['Biblioteca Central', 'Biblioteca'],
+          placetype: ['poi'],
+          center: [-73.01350, -36.82210]
+        }
+      ]);
+      console.log('>>> Lugares iniciales poblados con éxito.');
+    }
+
+    const eventsCount = await Event.countDocuments();
+    if (eventsCount === 0) {
+      console.log('>>> Poblando eventos iniciales...');
+      await Event.insertMany([
+        {
+          id: 'evento_1',
+          title: 'Feria Vocacional y de Empleabilidad UBB',
+          description: 'Encuentro con empresas y egresados en el Paraninfo.',
+          dateTime: '2026-11-20 10:00',
+          category: 'Feria',
+          locationName: 'Paraninfo UBB',
+          center: [-73.01300, -36.82170]
+        },
+        {
+          id: 'evento_2',
+          title: 'Torneo Interfacultades de Fútbol',
+          description: 'Fase clasificatoria en las canchas del campus.',
+          dateTime: '2026-11-22 15:00',
+          category: 'Deportes',
+          locationName: 'Canchas UBB',
+          center: [-73.01450, -36.82350]
+        }
+      ]);
+      console.log('>>> Eventos iniciales poblados con éxito.');
+    }
+  } catch (err) {
+    console.error('>>> Error durante el seed inicial:', err);
+  }
+}
+
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'API REST UBB Map funcionando correctamente',
+    database: mongoose.connection.readyState === 1 ? 'conectada' : 'desconectada',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Middleware de verificación de Token JWT
 const authMiddleware = (req, res, next) => {
