@@ -54,4 +54,19 @@ class ApiService {
         .map((item) => Map<String, dynamic>.from(item))
         .toList();
   }
+
+  Future<List<Map<String, dynamic>>> getServices(String campus) async {
+    try {
+      final data = await get('/services/$campus');
+      if (data is! List) {
+        return [];
+      }
+      return data
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
 }

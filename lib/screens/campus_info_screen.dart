@@ -204,14 +204,21 @@ class _ServicesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (services.isEmpty) {
+      return const Center(child: Text('No hay servicios disponibles'));
+    }
+
     return ListView.separated(
       padding: const EdgeInsets.all(12),
       itemCount: services.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (_, index) {
         final service = services[index];
-        final isOpen = service.isOpenNow;
+        final bool hasSchedule = service.schedule.isNotEmpty;
+        final isOpen = !hasSchedule || service.isOpenNow;
         final color = isOpen ? Colors.green.shade700 : Colors.red.shade700;
+        final statusText = !hasSchedule ? 'Disponible' : (isOpen ? 'Abierto ahora' : 'Cerrado');
+
         return Card(
           margin: EdgeInsets.zero,
           child: ListTile(
@@ -231,7 +238,7 @@ class _ServicesList extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                isOpen ? 'Abierto ahora' : 'Cerrado',
+                statusText,
                 style: TextStyle(
                     color: color, fontSize: 12, fontWeight: FontWeight.w700),
               ),

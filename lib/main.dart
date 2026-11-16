@@ -13,7 +13,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: "environments/.env");
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase no disponible o no inicializado: $e');
+  }
 
   runApp(MultiBlocProvider(
     providers: [

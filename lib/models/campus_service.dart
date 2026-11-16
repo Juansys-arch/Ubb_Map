@@ -56,9 +56,9 @@ class CampusService {
     }
 
     return CampusService(
-      name: (data['name'] ?? data['nombre'] ?? id).toString(),
-      category: (data['category'] ?? data['categoria'] ?? '').toString(),
-      location: (data['location'] ?? data['ubicacion'] ?? '').toString(),
+      name: (data['title'] ?? data['name'] ?? data['nombre'] ?? id).toString(),
+      category: (data['category'] ?? data['categoria'] ?? 'Servicios').toString(),
+      location: (data['locationName'] ?? data['location'] ?? data['ubicacion'] ?? '').toString(),
       schedule: schedule,
     );
   }

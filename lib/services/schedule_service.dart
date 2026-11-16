@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:ubb/models/class_schedule.dart';
 import 'package:ubb/services/api_service.dart';
 
@@ -7,21 +8,55 @@ class ScheduleService {
   ScheduleService({
     ApiService? apiService,
     String? userId,
+    FlutterSecureStorage? storage,
   })  : _apiService = apiService ?? ApiService(),
-        _userId = userId;
+        _userId = userId,
+        _storage = storage ?? const FlutterSecureStorage();
 
   final ApiService _apiService;
   final String? _userId;
+  final FlutterSecureStorage _storage;
 
   Future<List<ClassSchedule>> fetchForCurrentUser() async {
-    final userId = _userId ?? FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null || userId.isEmpty) {
+    final storedUserId = await _storage.read(key: 'userId');
+    final storedEmail = await _storage.read(key: 'userEmail');
+
+    User? firebaseUser;
+    try {
+      firebaseUser = FirebaseAuth.instance.currentUser;
+    } catch (_) {}
+
+    final userId = _userId ?? storedUserId ?? firebaseUser?.uid;
+    final email = storedEmail ?? firebaseUser?.email;
+
+    if ((userId == null || userId.isEmpty) &&
+        (email == null || email.isEmpty)) {
       throw StateError(
           'La sesión no está disponible. Inicia sesión nuevamente.');
     }
 
-    final schedule = await _apiService.get('/schedules/$userId');
-    return _entries(schedule)
+    dynamic schedule;
+    if (userId != null && userId.isNotEmpty) {
+      try {
+        schedule = await _apiService.get('/schedules/$userId');
+      } catch (_) {
+        schedule = null;
+      }
+    }
+
+    var entries = _entries(schedule);
+    // Si no encontró clases con el UID, intentar buscar por email (ej: Juan)
+    if (entries.isEmpty && email != null && email.isNotEmpty) {
+      try {
+        final emailSchedule = await _apiService.get('/schedules/$email');
+        final emailEntries = _entries(emailSchedule);
+        if (emailEntries.isNotEmpty) {
+          entries = emailEntries;
+        }
+      } catch (_) {}
+    }
+
+    return entries
         .map(_parseSchedule)
         .whereType<ClassSchedule>()
         .toList();

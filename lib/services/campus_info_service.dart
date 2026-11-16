@@ -16,16 +16,31 @@ class CampusInfoService {
   final ApiService _apiService;
 
   Future<CampusInfoData> fetch() async {
-    final events = await _apiService.getEvents('ccp');
-
-    return CampusInfoData(
-      events: events
+    List<CampusEvent> eventsList = [];
+    try {
+      final events = await _apiService.getEvents('ccp');
+      eventsList = events
           .map((event) => CampusEvent.fromMap(
                 event['id']?.toString() ?? '',
                 event,
               ))
-          .toList(),
-      services: const [],
+          .toList();
+    } catch (_) {}
+
+    List<CampusService> servicesList = [];
+    try {
+      final services = await _apiService.getServices('ccp');
+      servicesList = services
+          .map((service) => CampusService.fromMap(
+                service['id']?.toString() ?? '',
+                service,
+              ))
+          .toList();
+    } catch (_) {}
+
+    return CampusInfoData(
+      events: eventsList,
+      services: servicesList,
     );
   }
 }
